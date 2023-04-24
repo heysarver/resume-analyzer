@@ -69,7 +69,7 @@ The application should now be accessible at `http://localhost:5000`.
 
 ## API Endpoints
 
-- `POST /api/analyze` - Analyzes a resume file and returns a JSON object with the results.
+~~- `POST /api/analyze` - Analyzes a resume file and returns a JSON object with the results.~~
 
 ## License
 
