@@ -2,37 +2,54 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
   <title>Resume Analyzer</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-100 min-h-screen">
-  <div class="container mx-auto py-12">
-    <h1 class="text-4xl font-bold mb-8 text-center">Resume Analyzer</h1>
-    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col">
-      <form action="/" method="post" enctype="multipart/form-data">
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="pdf">Upload a PDF:</label>
-          <input
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            type="file" name="pdf" accept=".pdf">
-        </div>
-        <div class="flex items-center justify-between">
-          <button
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            type="submit">Analyze Resume</button>
-        </div>
-      </form>
-    </div>
-    {% if analysis %}
-    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <h2 class="text-2xl font-bold mb-4">Analysis</h2>
-      <pre class="text-sm whitespace-pre-wrap">{{ analysis.analysis }}</pre>
-    </div>
-    {% endif %}
+<body>
+  <div class="container mx-auto my-10">
+    <h1 class="text-4xl font-bold mb-6">Resume Analyzer</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+      <input type="file" id="resume" name="resume" class="mb-4">
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Analyze
+        Resume</button>
+    </form>
+    <div id="results" class="mt-6"></div>
   </div>
+  <script>
+    document.getElementById("upload-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const resume = document.getElementById("resume").files[0];
+      if (!resume) {
+        alert("Please select a resume file");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("resume", resume);
+
+      const resultsContainer = document.getElementById("results");
+      resultsContainer.innerHTML = "Processing...";
+
+      const eventSource = new EventSource("/analyze", { method: "POST", body: formData });
+
+      eventSource.onmessage = (event) => {
+        if (event.data === "[DONE]") {
+          eventSource.close();
+        } else {
+          resultsContainer.innerHTML += event.data;
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        resultsContainer.innerHTML = "An error occurred. Please try again.";
+        eventSource.close();
+      };
+    });
+  </script>
 </body>
 
 </html>
