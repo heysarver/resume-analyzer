@@ -41,7 +41,7 @@ def read_pdf(pdf_stream):
 
 def analyze_resume(resume_text):
     # Analyze the resume using OpenAI GPT API
-    prompt = f"Analyze the following resume: {resume_text}"
+    prompt = f"Analyze the following resume in 400 characters or less, and based solely on the data in the resume, make a conculsion if this is a potential candidate for a Site Reliability Engineer: {resume_text}"
     response = openai.ChatCompletion.create(
         model=openai_engine,
         messages=[{"role": "system", "content": "You are a helpful assistant."},
